@@ -1,6 +1,5 @@
 import sqlite3
 
-# Создание базы данных и таблицы, если она отсутствует
 def init_db():
     with sqlite3.connect("bot.db") as conn:
         cursor = conn.cursor()
@@ -14,7 +13,6 @@ def init_db():
         """)
         conn.commit()
 
-# Сохранение имени пользователя
 def save_user_name(user_id, name):
     with sqlite3.connect("bot.db") as conn:
         cursor = conn.cursor()
@@ -24,7 +22,6 @@ def save_user_name(user_id, name):
         """, (user_id, name))
         conn.commit()
 
-# Получение имени пользователя
 def get_user_name(user_id):
     with sqlite3.connect("bot.db") as conn:
         cursor = conn.cursor()
@@ -32,7 +29,6 @@ def get_user_name(user_id):
         result = cursor.fetchone()
         return result[0] if result else None
 
-# Сохранение времени начала сна
 def save_sleep_start(user_id, sleep_start):
     with sqlite3.connect("bot.db") as conn:
         cursor = conn.cursor()
@@ -41,7 +37,6 @@ def save_sleep_start(user_id, sleep_start):
         """, (sleep_start, user_id))
         conn.commit()
 
-# Сохранение времени конца сна
 def save_sleep_end(user_id, sleep_end):
     with sqlite3.connect("bot.db") as conn:
         cursor = conn.cursor()
@@ -49,3 +44,17 @@ def save_sleep_end(user_id, sleep_end):
         UPDATE users SET sleep_end = ? WHERE user_id = ?
         """, (sleep_end, user_id))
         conn.commit()
+
+def get_sleep_end(user_id):
+    with sqlite3.connect("bot.db") as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT sleep_end FROM users WHERE user_id = ?", (user_id,))
+        result = cursor.fetchone()
+        return result[0] if result else None
+
+def get_sleep_start(user_id):
+    with sqlite3.connect("bot.db") as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT sleep_start FROM users WHERE user_id = ?", (user_id,))
+        result = cursor.fetchone()
+        return result[0] if result else None
