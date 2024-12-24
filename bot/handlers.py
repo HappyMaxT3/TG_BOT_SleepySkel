@@ -46,7 +46,7 @@ async def sleep_start_handler(message: Message, state: FSMContext):
     current_time = datetime.now().strftime("%H:%M")
     current_date = datetime.now().strftime("%Y-%m-%d")
     save_sleep_start(user_id, f"{current_date} {current_time}")
-    await message.answer(f"🛌 Sleep start recorded: {current_date} {current_time}.", reply_markup=create_dynamic_menu(user_id))
+    await message.answer(f"🛌 Sleep start recorded: {current_time}  {current_date}.", reply_markup=create_dynamic_menu(user_id))
 
     await state.update_data(button_text="Mark the end of sleep")
     await message.answer(f"Now, get some sleep and mark the end later.\n💤 Sweet dreams, {name}!\n", reply_markup=create_dynamic_menu(user_id))
@@ -54,11 +54,12 @@ async def sleep_start_handler(message: Message, state: FSMContext):
 @router.message(F.text == "Mark the end of sleep")
 async def sleep_end_handler(message: Message, state: FSMContext):
     user_id = message.from_user.id
+    name = get_user_name(user_id)
     
     sleep_start = get_sleep_start(user_id)
     
     if not sleep_start:
-        await message.answer("‼️ First, mark the sleep start before marking the end.", reply_markup=create_dynamic_menu(user_id))
+        await message.answer("‼️ Mark the sleep start before marking the end.", reply_markup=create_dynamic_menu(user_id))
         return
 
     current_time = datetime.now().strftime("%H:%M")
@@ -74,13 +75,14 @@ async def sleep_end_handler(message: Message, state: FSMContext):
     minutes = (sleep_duration.seconds // 60) % 60
     
     await message.answer(
-        f"Sleep start:   {start_datetime.strftime('%Y-%m-%d %H:%M')}\n"
-        f"Sleep end:     {end_datetime.strftime('%Y-%m-%d %H:%M')}\n"
+        f"Sleep start:   {start_datetime.strftime('%H:%M    %Y-%m-%d')}\n"
+        f"Sleep end:     {end_datetime.strftime('%H:%M  %Y-%m-%d')}\n"
         f"Sleep duration: {hours} H {minutes} Min\n",
         reply_markup=create_dynamic_menu(user_id)
     )
-    await message. answer("🛏️ Sleep is over! Did you sleep well?\nMark the beginning of the sleep when you are ready to take a nap!")
+    await message.answer(f"🛏️ Sleep is over! {name}, did you sleep well?")
 
     save_sleep_start(user_id, '')
 
     await state.update_data(button_text="Mark the beginning of sleep")
+    await message.answer(f"💀 Mark the beginning of the sleep when you are ready to take a nap!", reply_markup=create_dynamic_menu(user_id))
