@@ -4,10 +4,11 @@ from aiogram.filters import CommandStart, Command
 from aiogram.fsm.context import FSMContext
 from aiogram.types import ReplyKeyboardRemove
 from datetime import datetime
-from .keyboards import create_dynamic_menu
-from .states import Form
-from .storage import save_user_name, get_user_name, save_sleep_start, save_sleep_end, get_sleep_start, get_sleep_end
+from bot.keyboards import create_dynamic_menu
+from bot.states import Form
+from bot.storage import save_user_name, get_user_name, save_sleep_start, save_sleep_end, get_sleep_start, get_sleep_end
 
+# Создаем экземпляр роутера
 router = Router()
 
 @router.message(CommandStart())
