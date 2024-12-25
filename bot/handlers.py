@@ -6,9 +6,10 @@ from aiogram.types import ReplyKeyboardRemove
 from datetime import datetime
 from bot.keyboards import create_dynamic_menu
 from bot.states import Form
+from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+from bot.inline_handlers import router as inline_router 
 from bot.storage import save_user_name, get_user_name, save_sleep_start, save_sleep_event, get_sleep_start, save_sleep_end
 
-# Создаем экземпляр роутера
 router = Router()
 
 @router.message(CommandStart())
@@ -74,10 +75,21 @@ async def sleep_end_handler(message: Message, state: FSMContext):
 
     await message.answer(
         f"Sleep start:   {start_datetime.strftime('%H:%M    %Y-%m-%d')}\n"
-        f"Sleep end:     {end_datetime.strftime('%H:%M  %Y-%m-%d')}\n"
+        f"Sleep end:     {end_datetime.strftime('%H:%M    %Y-%m-%d')}\n"
         f"Sleep duration: {duration_str}\n",
         reply_markup=create_dynamic_menu(user_id)
     )
     await message.answer(f"🛏️ Sleep is over! {name}, did you sleep well?")
     await state.update_data(button_text="Mark the beginning of sleep")
     await message.answer(f"💀 Mark the beginning of the sleep when you are ready to take a nap!", reply_markup=create_dynamic_menu(user_id))
+
+@router.message(F.text == "Show options")
+async def show_options_handler(message: Message):
+    inline_keyboard = InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text="Option 1", callback_data="option_1")],
+        [InlineKeyboardButton(text="Option 2", callback_data="option_2")],
+        [InlineKeyboardButton(text="Cancel", callback_data="cancel")]
+    ])
+    await message.answer("💀 Choose an option below:", reply_markup=inline_keyboard)
+
+router.include_router(inline_router)  

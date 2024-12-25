@@ -8,6 +8,7 @@ def create_dynamic_menu(user_id):
         return ReplyKeyboardMarkup(
             keyboard=[
                 [KeyboardButton(text="Mark the end of sleep")],
+                [KeyboardButton(text="Show options")],
                 [KeyboardButton(text="Change the name")]
             ],
             resize_keyboard=True
@@ -16,6 +17,7 @@ def create_dynamic_menu(user_id):
         return ReplyKeyboardMarkup(
             keyboard=[
                 [KeyboardButton(text="Mark the beginning of sleep")],
+                [KeyboardButton(text="Show options")],
                 [KeyboardButton(text="Change the name")]
             ],
             resize_keyboard=True

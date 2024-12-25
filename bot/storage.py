@@ -3,14 +3,12 @@ import sqlite3
 def init_db():
     with sqlite3.connect("bot.db") as conn:
         cursor = conn.cursor()
-        # Создаём таблицу пользователей
         cursor.execute("""
         CREATE TABLE IF NOT EXISTS users (
             user_id INTEGER PRIMARY KEY,
             name TEXT
         )
         """)
-        # Создаём таблицу истории сна
         cursor.execute("""
         CREATE TABLE IF NOT EXISTS sleep_history (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
