@@ -74,9 +74,9 @@ async def sleep_end_handler(message: Message, state: FSMContext):
     save_sleep_end(user_id, f"{current_date} {current_time}", duration_str)
 
     await message.answer(
-        f"Sleep start:   {start_datetime.strftime('%H:%M    %Y-%m-%d')}\n"
-        f"Sleep end:     {end_datetime.strftime('%H:%M    %Y-%m-%d')}\n\n"
-        f"Sleep duration: {duration_str}\n",
+        f"🥱 Sleep start:   {start_datetime.strftime('%H:%M    %Y-%m-%d')}\n"
+        f"⏰ Sleep end:     {end_datetime.strftime('%H:%M    %Y-%m-%d')}\n\n"
+        f"⏳ Sleep duration: {duration_str}\n",
         reply_markup=create_dynamic_menu(user_id)
     )
     await message.answer(f"🛏️ Sleep is over! {name}, did you sleep well?")
@@ -86,8 +86,8 @@ async def sleep_end_handler(message: Message, state: FSMContext):
 @router.message(F.text == "Show options")
 async def show_options_handler(message: Message):
     inline_keyboard = InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text="📊 Show Statistics", callback_data="option_1")],
-        [InlineKeyboardButton(text="Option 2", callback_data="option_2")],
+        [InlineKeyboardButton(text="📊 Statistics", callback_data="option_1")],
+        [InlineKeyboardButton(text="📜 Sleep History", callback_data="option_2")],
         [InlineKeyboardButton(text="Cancel", callback_data="cancel")]
     ])
     await message.answer("💀 Choose an option below:", reply_markup=inline_keyboard)

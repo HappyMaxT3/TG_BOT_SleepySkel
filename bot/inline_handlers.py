@@ -24,7 +24,8 @@ async def sleep_stats_handler(callback: CallbackQuery):
         f"📈 Statistics of all users:\n"
         f"• Average sleep duration: {anon_avg_sleep} min"
     )
-    await callback.message.answer(response)
+
+    await callback.message.edit_text(response)
     await callback.answer()
 
 @router.callback_query(F.data == "option_2")
@@ -36,11 +37,11 @@ async def option_2_handler(callback: CallbackQuery):
     if not sleep_history:
         response = "💀 You have no sleep records for the last 7 days."
     else:
-        response = "📜💀 Your sleep history for the last 7 days:\n\n"
+        response = "💀📜 Your sleep history for the last 7 days:\n\n"
         for sleep_start, sleep_end, sleep_duration in sleep_history:
-            response += f"🕒 {sleep_start} - {sleep_end}:\n {sleep_duration}\n\n"
+            response += f"🕝 {sleep_start} - {sleep_end}\n      {sleep_duration}\n\n"
 
-    await callback.message.answer(response)
+    await callback.message.edit_text(response)
     await callback.answer()
 
 @router.callback_query(F.data == "cancel")
