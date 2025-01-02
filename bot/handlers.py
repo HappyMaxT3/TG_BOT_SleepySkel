@@ -1,17 +1,18 @@
 from aiogram import Router, F
-from aiogram.types import Message
+from aiogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.filters import CommandStart, Command
 from aiogram.fsm.context import FSMContext
 from aiogram.types import ReplyKeyboardRemove
 from datetime import datetime
 from bot.keyboards import create_dynamic_menu
 from bot.states import Form
-import asyncio
-from aiogram import Bot
-from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from bot.inline_handlers import router as inline_router 
-from bot.storage import save_user_name, get_user_name, save_sleep_start, save_sleep_event, get_sleep_start, save_sleep_end
+from bot.storage import (
+    save_user_name, get_user_name, save_sleep_start, save_sleep_event,
+    get_sleep_start, save_sleep_end
+)
 from aiogram.filters.state import State, StatesGroup
+import asyncio
 
 class SleepCorrection(StatesGroup):
     waiting_for_correct_time = State()
@@ -40,9 +41,8 @@ async def change_name_handler(message: Message, state: FSMContext):
     await message.answer("💀 What should I call you now?", reply_markup=ReplyKeyboardRemove())
     await state.set_state(Form.name)
 
-async def notify_after_10_hours(user_id: int, sleep_start: str, bot: Bot):
+async def notify_after_10_hours(user_id: int, sleep_start: str, bot):
     await asyncio.sleep(10 * 60 * 60)
-
     current_sleep_start = get_sleep_start(user_id)
     if current_sleep_start == sleep_start:
         await bot.send_message(
@@ -58,7 +58,6 @@ async def notify_after_10_hours(user_id: int, sleep_start: str, bot: Bot):
 async def sleep_start_handler(message: Message, state: FSMContext):
     user_id = message.from_user.id
     name = get_user_name(user_id)
-    
     sleep_start = get_sleep_start(user_id)
     if sleep_start:
         await message.answer("‼️ You already recorded a sleep start time. Finish the current sleep first.", reply_markup=create_dynamic_menu(user_id))
@@ -72,14 +71,13 @@ async def sleep_start_handler(message: Message, state: FSMContext):
     await message.answer(f"🛌 Sleep start recorded: {current_time} {current_date}.", reply_markup=create_dynamic_menu(user_id))
     await state.update_data(button_text="Mark the end of sleep")
     await message.answer(f"💤 Sweet dreams, {name}! Don't forget to mark the end when you wake up!", reply_markup=create_dynamic_menu(user_id))
-    
+
     asyncio.create_task(notify_after_10_hours(user_id, sleep_start_str, message.bot))
 
 @router.message(F.text == "Mark the end of sleep")
 async def sleep_end_handler(message: Message, state: FSMContext):
     user_id = message.from_user.id
     name = get_user_name(user_id)
-    
     sleep_start = get_sleep_start(user_id)
     if not sleep_start:
         await message.answer("‼️ Mark the sleep start before marking the end.", reply_markup=create_dynamic_menu(user_id))
@@ -87,7 +85,7 @@ async def sleep_end_handler(message: Message, state: FSMContext):
 
     current_time = datetime.now().strftime("%H:%M")
     current_date = datetime.now().strftime("%Y-%m-%d")
-    
+
     start_datetime = datetime.strptime(sleep_start, "%Y-%m-%d %H:%M")
     end_datetime = datetime.strptime(f"{current_date} {current_time}", "%Y-%m-%d %H:%M")
     sleep_duration = end_datetime - start_datetime
@@ -114,7 +112,7 @@ async def sleep_end_handler(message: Message, state: FSMContext):
     hours = sleep_duration.seconds // 3600
     minutes = (sleep_duration.seconds // 60) % 60
     duration_str = f"{hours} H {minutes} Min"
-    
+
     save_sleep_end(user_id, f"{current_date} {current_time}", duration_str)
 
     await message.answer(
@@ -131,7 +129,7 @@ async def sleep_end_handler(message: Message, state: FSMContext):
 async def handle_correct_time(message: Message, state: FSMContext):
     user_id = message.from_user.id
     user_input = message.text.strip()
-    
+
     if user_input.lower() == "cancel":
         await message.answer("❌ Sleep record discarded.", reply_markup=create_dynamic_menu(user_id))
         await state.clear()
@@ -141,17 +139,17 @@ async def handle_correct_time(message: Message, state: FSMContext):
         corrected_time = datetime.strptime(user_input, "%H:%M").time()
         data = await state.get_data()
         start_datetime = data["start_datetime"]
-    
+
         end_datetime = datetime.combine(start_datetime.date(), corrected_time)
         if end_datetime < start_datetime:
             end_datetime = end_datetime.replace(day=start_datetime.day + 1)
-        
+
         sleep_duration = end_datetime - start_datetime
 
         hours = sleep_duration.seconds // 3600
         minutes = (sleep_duration.seconds // 60) % 60
         duration_str = f"{hours} H {minutes} Min"
-        
+
         save_sleep_end(user_id, end_datetime.strftime("%Y-%m-%d %H:%M"), duration_str)
 
         await message.answer(
@@ -174,4 +172,4 @@ async def show_options_handler(message: Message):
     ])
     await message.answer("💀 Choose an option below:", reply_markup=inline_keyboard)
 
-router.include_router(inline_router)  
+router.include_router(inline_router)
