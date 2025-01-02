@@ -22,6 +22,16 @@ def init_db():
         """)
         conn.commit()
 
+def clean_old_sleep_data():
+    with sqlite3.connect("bot.db") as conn:
+        cursor = conn.cursor()
+        fifteen_days_ago = (datetime.now() - timedelta(days=15)).strftime('%Y-%m-%d %H:%M:%S')
+        cursor.execute("""
+        DELETE FROM sleep_history
+        WHERE sleep_start < ?
+        """, (fifteen_days_ago,))
+        conn.commit()
+
 def save_user_name(user_id, name):
     with sqlite3.connect("bot.db") as conn:
         cursor = conn.cursor()

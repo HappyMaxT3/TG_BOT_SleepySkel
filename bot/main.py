@@ -5,7 +5,7 @@ from aiogram.client.session.aiohttp import AiohttpSession
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 from bot.handlers import router
-from bot.storage import init_db
+from bot.storage import init_db, clean_old_sleep_data
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -25,6 +25,7 @@ async def main():
     dp.include_router(router)
 
     init_db()
+    clean_old_sleep_data()
 
     try:
         await bot.delete_webhook(drop_pending_updates=True)
