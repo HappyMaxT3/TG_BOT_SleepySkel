@@ -1,4 +1,5 @@
 import sqlite3
+from datetime import datetime, timedelta
 
 def init_db():
     with sqlite3.connect("bot.db") as conn:
@@ -46,15 +47,20 @@ def save_sleep_event(user_id, sleep_start, sleep_end, sleep_duration):
         """, (user_id, sleep_start, sleep_end, sleep_duration))
         conn.commit()
 
-def get_sleep_history(user_id):
+def get_sleep_history_last_7_days(user_id):
     with sqlite3.connect("bot.db") as conn:
         cursor = conn.cursor()
-        cursor.execute("""
-        SELECT sleep_start, sleep_end, sleep_duration FROM sleep_history
-        WHERE user_id = ?
-        ORDER BY id DESC
-        """, (user_id,))
-        return cursor.fetchall()
+        week_ago = (datetime.now() - timedelta(days=7)).strftime('%Y-%m-%d %H:%M:%S')
+        query = """
+        SELECT sleep_start, sleep_end, sleep_duration
+        FROM sleep_history
+        WHERE user_id = ? AND sleep_start >= ?
+        ORDER BY sleep_start DESC
+        """
+        cursor.execute(query, (user_id, week_ago))
+        results = cursor.fetchall()
+
+    return [(row[0], row[1], row[2]) for row in results]
 
 def get_last_sleep_event(user_id):
     with sqlite3.connect("bot.db") as conn:
