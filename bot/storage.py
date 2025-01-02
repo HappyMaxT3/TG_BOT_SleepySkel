@@ -97,3 +97,50 @@ def save_sleep_end(user_id, sleep_end, sleep_duration):
         WHERE user_id = ? AND sleep_end IS NULL
         """, (sleep_end, sleep_duration, user_id))
         conn.commit()
+
+def convert_duration_to_minutes(duration):
+    duration = duration.replace(" H ", ":").replace(" Min", "").strip()
+    hours, minutes = map(int, duration.split(':'))
+    return hours * 60 + minutes
+
+
+def get_average_sleep_duration_last_7_days(user_id):
+    with sqlite3.connect("bot.db") as conn:
+        cursor = conn.cursor()
+        cursor.execute("""
+        SELECT sleep_duration FROM sleep_history
+        WHERE user_id = ? AND sleep_duration IS NOT NULL
+        ORDER BY id DESC
+        LIMIT 7
+        """, (user_id,))
+        durations = cursor.fetchall()
+        durations = [convert_duration_to_minutes(d[0]) for d in durations]
+        if durations:
+            return round(sum(durations) / len(durations), 2)
+        return 0
+
+def get_total_sleep_duration_last_7_days(user_id):
+    with sqlite3.connect("bot.db") as conn:
+        cursor = conn.cursor()
+        cursor.execute("""
+        SELECT sleep_duration FROM sleep_history
+        WHERE user_id = ? AND sleep_duration IS NOT NULL
+        ORDER BY id DESC
+        LIMIT 7
+        """, (user_id,))
+        durations = cursor.fetchall()
+        durations = [convert_duration_to_minutes(d[0]) for d in durations]
+        return round(sum(durations), 2)
+
+def get_anonymous_average_sleep():
+    with sqlite3.connect("bot.db") as conn:
+        cursor = conn.cursor()
+        cursor.execute("""
+        SELECT sleep_duration FROM sleep_history
+        WHERE sleep_duration IS NOT NULL
+        """)
+        durations = cursor.fetchall()
+        durations = [convert_duration_to_minutes(d[0]) for d in durations]
+        if durations:
+            return round(sum(durations) / len(durations), 2)
+        return 0

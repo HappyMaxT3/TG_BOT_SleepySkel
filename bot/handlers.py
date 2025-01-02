@@ -75,7 +75,7 @@ async def sleep_end_handler(message: Message, state: FSMContext):
 
     await message.answer(
         f"Sleep start:   {start_datetime.strftime('%H:%M    %Y-%m-%d')}\n"
-        f"Sleep end:     {end_datetime.strftime('%H:%M    %Y-%m-%d')}\n"
+        f"Sleep end:     {end_datetime.strftime('%H:%M    %Y-%m-%d')}\n\n"
         f"Sleep duration: {duration_str}\n",
         reply_markup=create_dynamic_menu(user_id)
     )
@@ -86,7 +86,7 @@ async def sleep_end_handler(message: Message, state: FSMContext):
 @router.message(F.text == "Show options")
 async def show_options_handler(message: Message):
     inline_keyboard = InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text="Option 1", callback_data="option_1")],
+        [InlineKeyboardButton(text="📊 Show Statistics", callback_data="option_1")],
         [InlineKeyboardButton(text="Option 2", callback_data="option_2")],
         [InlineKeyboardButton(text="Cancel", callback_data="cancel")]
     ])
