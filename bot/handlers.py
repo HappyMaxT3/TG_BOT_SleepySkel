@@ -8,7 +8,7 @@ from bot.keyboards import create_dynamic_menu
 from bot.states import Form
 from bot.inline_handlers import router as inline_router 
 from bot.storage import (
-    save_user_name, get_user_name, save_sleep_start, save_sleep_event,
+    save_user_name, get_user_name, save_sleep_start,
     get_sleep_start, save_sleep_end
 )
 from aiogram.filters.state import State, StatesGroup

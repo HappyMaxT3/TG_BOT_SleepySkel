@@ -48,15 +48,6 @@ def get_user_name(user_id):
         result = cursor.fetchone()
         return result[0] if result else None
 
-def save_sleep_event(user_id, sleep_start, sleep_end, sleep_duration):
-    with sqlite3.connect("bot.db") as conn:
-        cursor = conn.cursor()
-        cursor.execute("""
-        INSERT INTO sleep_history (user_id, sleep_start, sleep_end, sleep_duration)
-        VALUES (?, ?, ?, ?)
-        """, (user_id, sleep_start, sleep_end, sleep_duration))
-        conn.commit()
-
 def get_sleep_history_last_7_days(user_id):
     with sqlite3.connect("bot.db") as conn:
         cursor = conn.cursor()
