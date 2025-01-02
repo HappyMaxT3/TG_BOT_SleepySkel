@@ -6,11 +6,10 @@ from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 from bot.handlers import router
 from bot.storage import init_db, clean_old_sleep_data
+from bot.config import BOT_TOKEN
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-
-BOT_TOKEN = "7709589367:AAEIdpY8yBMs2bADkYcWoWtCPRylznxWwWw"
 
 async def main():
     session = AiohttpSession()
