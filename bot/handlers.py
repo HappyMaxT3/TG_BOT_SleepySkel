@@ -37,7 +37,7 @@ async def info_handler(message: Message):
         "2️⃣ /info — Info and instruction.\n"
         "3️⃣ 'Mark the beginning of sleep' — Mark the start of sleep.\n"
         "4️⃣ 'Mark the end of sleep' — Mark the end of sleep.\n"
-        "5️⃣ 'Show options' — Show additional settings (statistics, sleep history).\n"
+        "5️⃣ 'Show options' — Show additional settings (statistics, sleep history, chat with SleepySkel).\n"
         "6️⃣ 'Change the name' — Change your name in the bot.\n\n"
         "💡 *Tip:* Don’t forget to mark the end of sleep to get accurate statistics! 💤\n"
         "If you sleep for more than 10 hours, SleepySkel will remind you to finish recording your sleep. 🛏️"
@@ -183,7 +183,7 @@ async def show_options_handler(message: Message):
     inline_keyboard = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="📊 Statistics", callback_data="option_1")],
         [InlineKeyboardButton(text="📜 Sleep History", callback_data="option_2")],
-        [InlineKeyboardButton(text="Cancel", callback_data="cancel")]
+        [InlineKeyboardButton(text="Start Chat", callback_data="start_chat")]
     ])
     await message.answer("💀 Choose an option below:", reply_markup=inline_keyboard)
 

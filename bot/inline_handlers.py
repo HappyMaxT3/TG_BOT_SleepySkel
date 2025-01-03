@@ -1,13 +1,17 @@
 from aiogram import Router, F
 from aiogram.types import CallbackQuery
+from aiogram.types import Message, InlineKeyboardButton, InlineKeyboardMarkup
 from bot.storage import (
     get_average_sleep_duration_last_7_days,
     get_total_sleep_duration_last_7_days,
     get_anonymous_average_sleep,
     get_sleep_history_last_7_days
 )
+from bot.model_interaction import get_model_response 
 
 router = Router()
+
+user_chat_state = {}
 
 @router.callback_query(F.data == "option_1")
 async def sleep_stats_handler(callback: CallbackQuery):
@@ -44,7 +48,34 @@ async def option_2_handler(callback: CallbackQuery):
     await callback.message.edit_text(response)
     await callback.answer()
 
-@router.callback_query(F.data == "cancel")
-async def cancel_handler(callback: CallbackQuery):
-    await callback.message.answer("❌ Action cancelled.")
+@router.callback_query(F.data == "start_chat")
+async def start_chat_handler(callback: CallbackQuery):
+    user_id = callback.from_user.id
+    await callback.message.answer("💀💤 Hello! I am SleepySkel. We can talk about your dreams or smth. Type 'stop' to end the conversation.")
     await callback.answer()
+
+    user_chat_state[user_id] = True
+
+@router.message(F.text == "stop")
+async def stop_chat_handler(message: Message):
+    user_id = message.from_user.id
+
+    if user_chat_state.get(user_id):
+        user_chat_state[user_id] = False
+        await message.answer("💀🔚 Chat with SleepySkel has ended.")
+    else:
+        await message.answer("💀❌ You are not in a chat.")
+
+@router.message()
+async def chat_with_model_handler(message: Message):
+    user_id = message.from_user.id
+    text = message.text.strip().lower()
+
+    if user_chat_state.get(user_id):
+        if text == "stop":
+            await stop_chat_handler(message)
+        else:
+            model_response = await get_model_response(text)
+            await message.answer(model_response)
+    else:
+        await message.answer("💀🔒 You are not in a chat with SleepySkel. Choose an option to begin!")
