@@ -17,4 +17,4 @@ async def get_model_response(user_input: str) -> str:
         answer = response['choices'][0]['message']['content'].strip()
         return f"💀💤 {answer}" 
     except Exception as e:
-        return f"💀 Error occurred! Please, try later."
+        return f"💀 Error occurred (limit reached or smth)! Please, try later.\n(If you are a developer, check the console, clumsy!)"

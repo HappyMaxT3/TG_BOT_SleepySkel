@@ -37,7 +37,7 @@ async def info_handler(message: Message):
         "2️⃣ /info — Info and instruction.\n"
         "3️⃣ 'Mark the beginning of sleep' — Mark the start of sleep.\n"
         "4️⃣ 'Mark the end of sleep' — Mark the end of sleep.\n"
-        "5️⃣ 'Show options' — Show additional settings (statistics, sleep history, chat with SleepySkel).\n"
+        "5️⃣ 'Show options' — Show additional settings: statistics, sleep history, chat with SleepySkel (has a limit).\n"
         "6️⃣ 'Change the name' — Change your name in the bot.\n\n"
         "💡 *Tip:* Don’t forget to mark the end of sleep to get accurate statistics! 💤\n"
         "If you sleep for more than 10 hours, SleepySkel will remind you to finish recording your sleep. 🛏️"
@@ -83,9 +83,9 @@ async def sleep_start_handler(message: Message, state: FSMContext):
     sleep_start_str = f"{current_date} {current_time}"
     save_sleep_start(user_id, sleep_start_str)
 
-    await message.answer(f"🛌 Sleep start recorded: {current_time} {current_date}.", reply_markup=create_dynamic_menu(user_id))
+    await message.answer(f"💀🛌 Sleep start recorded: {current_time} {current_date}.", reply_markup=create_dynamic_menu(user_id))
     await state.update_data(button_text="Mark the end of sleep")
-    await message.answer(f"💤 Sweet dreams, {name}! Don't forget to mark the end when you wake up!", reply_markup=create_dynamic_menu(user_id))
+    await message.answer(f"💀💤 Sweet dreams, {name}! Don't forget to mark the end when you wake up!", reply_markup=create_dynamic_menu(user_id))
 
     asyncio.create_task(notify_after_10_hours(user_id, sleep_start_str, message.bot))
 
@@ -136,7 +136,7 @@ async def sleep_end_handler(message: Message, state: FSMContext):
         f"⏳ Sleep duration: {duration_str}\n",
         reply_markup=create_dynamic_menu(user_id)
     )
-    await message.answer(f"🛏️ Sleep is over! {name}, did you sleep well?")
+    await message.answer(f"💀🛏️ Sleep is over! {name}, did you sleep well?")
     await state.update_data(button_text="Mark the beginning of sleep")
     await message.answer(f"💀 Mark the beginning of the sleep when you are ready to take a nap!", reply_markup=create_dynamic_menu(user_id))
 
@@ -183,7 +183,7 @@ async def show_options_handler(message: Message):
     inline_keyboard = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="📊 Statistics", callback_data="option_1")],
         [InlineKeyboardButton(text="📜 Sleep History", callback_data="option_2")],
-        [InlineKeyboardButton(text="Start Chat", callback_data="start_chat")]
+        [InlineKeyboardButton(text="💀 Start Chat", callback_data="start_chat")]
     ])
     await message.answer("💀 Choose an option below:", reply_markup=inline_keyboard)
 
