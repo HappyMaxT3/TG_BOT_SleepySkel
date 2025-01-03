@@ -43,12 +43,10 @@ Inside the `bot` folder, create a file called `config.py` and add the following 
 # config.py
 
 BOT_TOKEN = "your_telegram_bot_token"
-LLM_TOKEN = "your_openai_token"
 ```
 
 #### Where to get the tokens:
 - **BOT_TOKEN**: Get it from [BotFather](https://t.me/botfather) in Telegram.
-- **LLM_TOKEN**: Sign up at [OpenAI](https://platform.openai.com/signup) and get your API key.
 
 ---
 

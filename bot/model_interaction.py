@@ -1,20 +1,27 @@
-import openai
-from bot.config import LLM_TOKEN
+from transformers import AutoModelForCausalLM, AutoTokenizer
+from tqdm import tqdm
+import torch
 
-openai.api_key = LLM_TOKEN
+def load_model_with_progress(model_name="bigscience/bloomz-560m"):
+    print("💀 Loading model...")
+    progress_bar = tqdm(total=2, desc="Download progress")
 
-async def get_model_response(user_input: str) -> str:
-    try:
-        response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
-            messages=[
-                {"role": "system", "content": "You are SleepySkel, a helpful assistant who helps track and analyze sleep patterns. Your role is to provide tips, advice, and feedback on sleep-related topics."},
-                {"role": "user", "content": user_input}
-            ],
-            max_tokens=100,
-            temperature=0.7
-        )
-        answer = response['choices'][0]['message']['content'].strip()
-        return f"💀💤 {answer}" 
-    except Exception as e:
-        return f"💀 Error occurred (limit reached or smth)! Please, try later.\n(If you are a developer, check the console, clumsy!)"
+    tokenizer = AutoTokenizer.from_pretrained(model_name)
+    progress_bar.update(1)
+
+    model = AutoModelForCausalLM.from_pretrained(
+        model_name,
+        torch_dtype=torch.float16 if torch.cuda.is_available() else torch.float32
+    )
+    progress_bar.update(1)
+
+    progress_bar.close()
+    print("💀 Model loaded successfully!")
+
+    return model, tokenizer
+
+# Генерация ответа
+def get_model_response(model, tokenizer, user_input: str) -> str:
+    inputs = tokenizer.encode(f"User: {user_input}\nSleepySkel: ", return_tensors="pt")
+    outputs = model.generate(inputs, max_new_tokens=150)
+    return tokenizer.decode(outputs[0], skip_special_tokens=True)

@@ -7,11 +7,16 @@ from aiogram.enums import ParseMode
 from bot.handlers import router
 from bot.storage import init_db, clean_old_sleep_data
 from bot.config import BOT_TOKEN
+from bot.model_interaction import load_model_with_progress
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 async def main():
+    # Загрузка модели и токенизатора
+    loop = asyncio.get_event_loop()
+    model, tokenizer = await loop.run_in_executor(None, load_model_with_progress)
+
     session = AiohttpSession()
     bot = Bot(
         token=BOT_TOKEN, 
@@ -20,6 +25,8 @@ async def main():
     )
     
     dp = Dispatcher()
+    dp["model"] = model
+    dp["tokenizer"] = tokenizer
 
     dp.include_router(router)
 
