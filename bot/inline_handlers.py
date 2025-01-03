@@ -9,7 +9,7 @@ from bot.storage import (
 from bot.model_interaction import get_model_response
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
-model_name = "bigscience/bloomz-560m"
+model_name = "bigscience/bloomz-1b1"
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 model = AutoModelForCausalLM.from_pretrained(model_name)
 
