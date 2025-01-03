@@ -24,16 +24,31 @@ async def start_handler(message: Message, state: FSMContext):
     user_id = message.from_user.id
     name = get_user_name(user_id)
     if name:
-        await message.answer(f"💀 Welcome back, {name}!", reply_markup=create_dynamic_menu(user_id))
+        await message.answer(f"💀 Welcome back, {name}! Type /info to check my capabilities!", reply_markup=create_dynamic_menu(user_id))
     else:
         await message.answer("💀 Welcome! I`m Sleepy Skel! What should I call you?")
         await state.set_state(Form.name)
+
+@router.message(Command("info"))
+async def info_handler(message: Message):
+    instruction_text = (
+        "💀 *Sleepy Skel Bot User Guide:*\n\n"
+        "1️⃣ /start — Start the bot and set up your username.\n"
+        "2️⃣ /info — Info and instruction.\n"
+        "3️⃣ 'Mark the beginning of sleep' — Mark the start of sleep.\n"
+        "4️⃣ 'Mark the end of sleep' — Mark the end of sleep.\n"
+        "5️⃣ 'Show options' — Show additional settings (statistics, sleep history).\n"
+        "6️⃣ 'Change the name' — Change your name in the bot.\n\n"
+        "💡 *Tip:* Don’t forget to mark the end of sleep to get accurate statistics! 💤\n"
+        "If you sleep for more than 10 hours, SleepySkel will remind you to finish recording your sleep. 🛏️"
+    )
+    await message.answer(instruction_text, parse_mode="Markdown")
 
 @router.message(Form.name)
 async def handle_name(message: Message, state: FSMContext):
     user_id = message.from_user.id
     save_user_name(user_id, message.text)
-    await message.answer(f"💀 Great, {message.text}!", reply_markup=create_dynamic_menu(user_id))
+    await message.answer(f"💀 Great, {message.text}! Type /info to check my capabilities!", reply_markup=create_dynamic_menu(user_id))
     await state.clear()
 
 @router.message(F.text == "Change the name")
