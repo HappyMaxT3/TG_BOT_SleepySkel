@@ -73,7 +73,7 @@ async def chat_with_model_handler(message: Message):
         if text == "stop":
             await stop_chat_handler(message)
         else:
-            model_response = get_model_response(model, tokenizer, text)
+            model_response = get_model_response(model, tokenizer, text, user_id)
             await message.answer(model_response)
     else:
         await message.answer("💀🔒 You are not in a chat with SleepySkel. Choose an option to begin!")
