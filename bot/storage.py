@@ -20,7 +20,35 @@ def init_db():
             FOREIGN KEY (user_id) REFERENCES users(user_id)
         )
         """)
+        cursor.execute("""
+        CREATE TABLE IF NOT EXISTS reviews (
+            review_id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER,
+            review_text TEXT NOT NULL,
+            created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (user_id) REFERENCES users(user_id)
+        )
+        """)
         conn.commit()
+
+def add_sleep_history(user_id, sleep_start, sleep_end, sleep_duration):
+    with sqlite3.connect("bot.db") as conn:
+        cursor = conn.cursor()
+        cursor.execute("""
+        INSERT INTO sleep_history (user_id, sleep_start, sleep_end, sleep_duration) 
+        VALUES (?, ?, ?, ?)
+        """, (user_id, sleep_start, sleep_end, sleep_duration))
+        conn.commit()
+
+def add_feedback(user_id, review_text):
+    with sqlite3.connect("bot.db") as conn:
+        cursor = conn.cursor()
+        cursor.execute("""
+        INSERT INTO reviews (user_id, review_text) 
+        VALUES (?, ?)
+        """, (user_id, review_text))
+        conn.commit()
+
 
 def clean_old_sleep_data():
     with sqlite3.connect("bot.db") as conn:

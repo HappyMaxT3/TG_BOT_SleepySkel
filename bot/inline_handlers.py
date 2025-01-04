@@ -69,6 +69,9 @@ async def chat_with_model_handler(message: Message):
     user_id = message.from_user.id
     text = message.text.strip().lower()
 
+    if 'feedback' in text:
+        return 
+
     if user_chat_state.get(user_id):
         if text == "stop":
             await stop_chat_handler(message)
