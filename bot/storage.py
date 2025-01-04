@@ -31,6 +31,13 @@ def init_db():
         """)
         conn.commit()
 
+def get_all_user_ids():
+    with sqlite3.connect("bot.db") as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT user_id FROM users")
+        user_ids = [row[0] for row in cursor.fetchall()]
+    return user_ids
+
 def add_sleep_history(user_id, sleep_start, sleep_end, sleep_duration):
     with sqlite3.connect("bot.db") as conn:
         cursor = conn.cursor()

@@ -53,12 +53,13 @@ async def info_handler(message: Message):
         "1️⃣ /start — Start the bot and set up your username.\n"
         "2️⃣ /info — Info and instruction.\n"
         "3️⃣ 'Mark the beginning of sleep' — Mark the start of sleep.\n"
-        "4️⃣ 'Mark the end of sleep' — Mark the end of sleep.\n"
+        "4️⃣ 'Mark the end of sleep' — Mark the end of sleep (sleep duration must be >20 min).\n"
         "5️⃣ 'Show options' — Show additional settings: statistics, sleep history, chat with SleepySkel.\n"
         "6️⃣ 'Change the name' — Change your name in the bot.\n\n"
         "💡 *Tip:* Don’t forget to mark the end of sleep to get accurate statistics! 💤\n"
         "If you sleep for more than 10 hours, SleepySkel will remind you to finish recording your sleep. 🛏️\n\n"
-        "📝 You can leave a feedback! Just send a message with `feedback` and it will recordered."
+        "📝 You can leave a feedback! Just send a message with `feedback` and it will recordered\n."
+        "(Feedback It is so cool bot! Waiting 100$ on ma paypal.)"
     )
     await message.answer(instruction_text, parse_mode="Markdown")
 
