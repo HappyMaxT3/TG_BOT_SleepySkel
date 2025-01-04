@@ -37,7 +37,7 @@ async def info_handler(message: Message):
         "2️⃣ /info — Info and instruction.\n"
         "3️⃣ 'Mark the beginning of sleep' — Mark the start of sleep.\n"
         "4️⃣ 'Mark the end of sleep' — Mark the end of sleep.\n"
-        "5️⃣ 'Show options' — Show additional settings: statistics, sleep history, chat with SleepySkel (has a limit).\n"
+        "5️⃣ 'Show options' — Show additional settings: statistics, sleep history, chat with SleepySkel.\n"
         "6️⃣ 'Change the name' — Change your name in the bot.\n\n"
         "💡 *Tip:* Don’t forget to mark the end of sleep to get accurate statistics! 💤\n"
         "If you sleep for more than 10 hours, SleepySkel will remind you to finish recording your sleep. 🛏️"
@@ -85,7 +85,7 @@ async def sleep_start_handler(message: Message, state: FSMContext):
 
     await message.answer(f"💀🛌 Sleep start recorded: {current_time} {current_date}.", reply_markup=create_dynamic_menu(user_id))
     await state.update_data(button_text="Mark the end of sleep")
-    await message.answer(f"💀💤 Sweet dreams, {name}! Don't forget to mark the end when you wake up!", reply_markup=create_dynamic_menu(user_id))
+    await message.answer(f"💀💤 Sweet dreams, {name}! Don't forget to mark the end when you wake up!\n (Remember that the min sleep duration is 20 minutes)", reply_markup=create_dynamic_menu(user_id))
 
     asyncio.create_task(notify_after_10_hours(user_id, sleep_start_str, message.bot))
 
@@ -115,7 +115,7 @@ async def sleep_end_handler(message: Message, state: FSMContext):
         return
 
     total_hours = sleep_duration.total_seconds() / 3600
-    if total_hours > 20:
+    if total_hours > 12:
         await message.answer(
             f"‼️ Sleep duration is too long ({total_hours:.2f} hours). Please provide the correct wake-up time in 'HH:MM' format or type 'cancel' to discard this sleep record.",
             reply_markup=ReplyKeyboardRemove()

@@ -1,7 +1,3 @@
-Here’s the updated version of your README with the Hugging Face registration instructions added:
-
----
-
 # 💀 SleepySkel — Telegram Bot to Track Your Sleep!
 
 **SleepySkel** is a friendly skeleton bot that helps you track your sleep schedule, analyze your sleep quality, and gives tips to improve your rest. Let's get started!

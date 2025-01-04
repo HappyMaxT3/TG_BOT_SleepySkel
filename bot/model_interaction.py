@@ -3,7 +3,7 @@ from tqdm import tqdm
 from bot.storage import get_user_name
 import torch
 
-def load_model_with_progress(model_name="bigscience/bloomz-1b1"):
+def load_model_with_progress(model_name="bigscience/bloomz-1b7"):
     progress_bar = tqdm(total=2, desc="loading")
 
     tokenizer = AutoTokenizer.from_pretrained(model_name)
