@@ -4,7 +4,8 @@ from bot.storage import (
     get_average_sleep_duration_last_7_days,
     get_total_sleep_duration_last_7_days,
     get_anonymous_average_sleep,
-    get_sleep_history_last_7_days
+    get_sleep_history_last_7_days,
+    add_feedback
 )
 from bot.model_interaction import get_model_response
 from transformers import AutoModelForCausalLM, AutoTokenizer
@@ -70,7 +71,10 @@ async def chat_with_model_handler(message: Message):
     text = message.text.strip().lower()
 
     if 'feedback' in text:
-        return 
+        review_text = text.replace('feedback', '').strip()
+        add_feedback(user_id, review_text)
+        await message.answer("💀 Thank you for your feedback! It has been saved.")
+        return
 
     if user_chat_state.get(user_id):
         if text == "stop":

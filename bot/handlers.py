@@ -9,12 +9,13 @@ from bot.states import Form
 from bot.inline_handlers import router as inline_router 
 from bot.storage import (
     save_user_name, get_user_name, save_sleep_start,
-    get_sleep_start, save_sleep_end, add_feedback
+    get_sleep_start, save_sleep_end
 )
 from aiogram.filters.state import State, StatesGroup
 import asyncio
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.interval import IntervalTrigger
+from aiogram import Bot
 
 class SleepCorrection(StatesGroup):
     waiting_for_correct_time = State()
@@ -23,9 +24,8 @@ scheduler = AsyncIOScheduler()
 
 router = Router()
 
-async def add_feedback_after_delay(user_id: int):
-    review_text = "Your feedback after 1 minute! 2"
-    add_feedback(user_id, review_text)
+async def send_feedback_prompt(user_id: int, bot: Bot):
+    await bot.send_message(user_id, "💀 I remind that you can leave a feedback!\n📝 Just write a message with `feedback` and it will be recordered.")
 
 @router.message(CommandStart())
 async def start_handler(message: Message, state: FSMContext):
@@ -36,11 +36,12 @@ async def start_handler(message: Message, state: FSMContext):
     else:
         await message.answer("💀 Welcome! I`m Sleepy Skel! What should I call you?")
         await state.set_state(Form.name)
-    
+
+    bot = message.bot
     scheduler.add_job(
-        add_feedback_after_delay, 
-        trigger=IntervalTrigger(seconds=20),
-        args=[user_id],
+        send_feedback_prompt, 
+        trigger=IntervalTrigger(hours=45),
+        args=[user_id, bot],
         max_instances=1
     )
     scheduler.start()
@@ -56,7 +57,8 @@ async def info_handler(message: Message):
         "5️⃣ 'Show options' — Show additional settings: statistics, sleep history, chat with SleepySkel.\n"
         "6️⃣ 'Change the name' — Change your name in the bot.\n\n"
         "💡 *Tip:* Don’t forget to mark the end of sleep to get accurate statistics! 💤\n"
-        "If you sleep for more than 10 hours, SleepySkel will remind you to finish recording your sleep. 🛏️"
+        "If you sleep for more than 10 hours, SleepySkel will remind you to finish recording your sleep. 🛏️\n\n"
+        "📝 You can leave a feedback! Just send a message with `feedback` and it will recordered."
     )
     await message.answer(instruction_text, parse_mode="Markdown")
 
