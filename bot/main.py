@@ -12,6 +12,14 @@ from bot.model_interaction import load_model_with_progress
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+async def notify_startup(bot: Bot):
+    user_ids = get_all_user_ids()
+    for user_id in user_ids:
+        try:
+            await bot.send_message(user_id, "💀🦾 Wake the f*** up, samurai... We have the sleep to track!\nLet`s go, darling! I`m workind again.")
+        except Exception as e:
+            logger.warning(f"Failed to notify user {user_id}: {e}")
+
 async def notify_shutdown(bot: Bot):
     user_ids = get_all_user_ids()
     for user_id in user_ids:
@@ -26,11 +34,11 @@ async def main():
 
     session = AiohttpSession()
     bot = Bot(
-        token=BOT_TOKEN, 
-        session=session, 
+        token=BOT_TOKEN,
+        session=session,
         default=DefaultBotProperties(parse_mode=ParseMode.HTML)
     )
-    
+
     dp = Dispatcher()
     dp["model"] = model
     dp["tokenizer"] = tokenizer
@@ -40,12 +48,20 @@ async def main():
     init_db()
     clean_old_sleep_data()
 
+    notify_users = input("🔔 Notify users about bot startup? (yes/no): ").strip().lower()
+    if notify_users in {"yes", "y"}:
+        logger.info("Notifying users about startup...")
+        await notify_startup(bot)
+    else:
+        logger.info("Startup notification skipped.")
+
     try:
         await bot.delete_webhook(drop_pending_updates=True)
         await dp.start_polling(bot, allowed_updates=dp.resolve_used_update_types())
     finally:
-        logger.info("Notifying users about shutdown...")
-        await notify_shutdown(bot)
+        if notify_users in {"yes", "y"}:
+            logger.info("Notifying users about shutdown...")
+            await notify_shutdown(bot)
         await bot.session.close()
         logger.info("Bot session closed.")
 
