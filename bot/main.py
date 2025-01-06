@@ -17,7 +17,7 @@ async def notify_startup(bot: Bot):
     user_ids = get_all_user_ids()
     for user_id in user_ids:
         try:
-            await bot.send_message(user_id, "💀🦾 Wake the f*** up, samurai... We have the sleep to track!\nLet`s go, darling! I`m working again.")
+            await bot.send_message(user_id, "💀🦾 Wake the f*** up, samurai... We have the sleep to track!\nLet's go, darling! I'm working again.")
         except Exception as e:
             logger.warning(f"Failed to notify user {user_id}: {e}")
 
@@ -25,25 +25,25 @@ async def notify_shutdown(bot: Bot):
     user_ids = get_all_user_ids()
     for user_id in user_ids:
         try:
-            await bot.send_message(user_id, "💀💤 See you soon, darling!\nI`m falling asleep too... It`s time to rest...")
+            await bot.send_message(user_id, "💀💤 See you soon, darling!\nI'm falling asleep too... It's time to rest...")
         except Exception as e:
             logger.warning(f"Failed to notify user {user_id}: {e}")
 
-def delete_reviews_by_user_id(user_id):
+def delete_reviews_by_user_ids(user_ids):
     with sqlite3.connect("bot.db") as conn:
         cursor = conn.cursor()
-        cursor.execute("DELETE FROM reviews WHERE user_id = ?", (user_id,))
+        cursor.executemany("DELETE FROM reviews WHERE user_id = ?", [(user_id,) for user_id in user_ids])
         conn.commit()
-        logger.info(f"Deleted reviews for user_id {user_id}.")
+        logger.info(f"Deleted reviews for user_ids: {user_ids}")
 
-def delete_user_by_id(user_id):
+def delete_users_by_ids(user_ids):
     with sqlite3.connect("bot.db") as conn:
         cursor = conn.cursor()
-        cursor.execute("DELETE FROM users WHERE user_id = ?", (user_id,))
-        cursor.execute("DELETE FROM sleep_history WHERE user_id = ?", (user_id,))
-        cursor.execute("DELETE FROM reviews WHERE user_id = ?", (user_id,))
+        cursor.executemany("DELETE FROM users WHERE user_id = ?", [(user_id,) for user_id in user_ids])
+        cursor.executemany("DELETE FROM sleep_history WHERE user_id = ?", [(user_id,) for user_id in user_ids])
+        cursor.executemany("DELETE FROM reviews WHERE user_id = ?", [(user_id,) for user_id in user_ids])
         conn.commit()
-        logger.info(f"Deleted user and related data for user_id {user_id}.")
+        logger.info(f"Deleted users and related data for user_ids: {user_ids}")
 
 async def main():
     loop = asyncio.get_event_loop()
@@ -67,15 +67,15 @@ async def main():
 
     action = input("🔧 Would you like to delete user data or reviews? (users/reviews/skip): ").strip().lower()
     if action in {"users", "reviews"}:
-        user_id = input("🆔 Enter user_id to delete: ").strip()
-        if user_id.isdigit():
-            user_id = int(user_id)
+        user_ids_input = input("🆔 Enter user_ids to delete (comma or space separated): ").strip()
+        user_ids = [int(uid) for uid in user_ids_input.replace(",", " ").split() if uid.isdigit()]
+        if user_ids:
             if action == "users":
-                delete_user_by_id(user_id)
+                delete_users_by_ids(user_ids)
             elif action == "reviews":
-                delete_reviews_by_user_id(user_id)
+                delete_reviews_by_user_ids(user_ids)
         else:
-            logger.warning("Invalid user_id entered. Skipping deletion.")
+            logger.warning("No valid user_ids entered. Skipping deletion.")
 
     notify_users = input("🔔 Notify users about bot startup? (yes/no): ").strip().lower()
     if notify_users in {"yes", "y"}:
