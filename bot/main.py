@@ -1,5 +1,6 @@
 import asyncio
 import logging
+import sqlite3
 from aiogram import Bot, Dispatcher
 from aiogram.client.session.aiohttp import AiohttpSession
 from aiogram.client.default import DefaultBotProperties
@@ -16,7 +17,7 @@ async def notify_startup(bot: Bot):
     user_ids = get_all_user_ids()
     for user_id in user_ids:
         try:
-            await bot.send_message(user_id, "💀🦾 Wake the f*** up, samurai... We have the sleep to track!\nLet`s go, darling! I`m workind again.")
+            await bot.send_message(user_id, "💀🦾 Wake the f*** up, samurai... We have the sleep to track!\nLet`s go, darling! I`m working again.")
         except Exception as e:
             logger.warning(f"Failed to notify user {user_id}: {e}")
 
@@ -27,6 +28,22 @@ async def notify_shutdown(bot: Bot):
             await bot.send_message(user_id, "💀💤 See you soon, darling!\nI`m falling asleep too... It`s time to rest...")
         except Exception as e:
             logger.warning(f"Failed to notify user {user_id}: {e}")
+
+def delete_reviews_by_user_id(user_id):
+    with sqlite3.connect("bot.db") as conn:
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM reviews WHERE user_id = ?", (user_id,))
+        conn.commit()
+        logger.info(f"Deleted reviews for user_id {user_id}.")
+
+def delete_user_by_id(user_id):
+    with sqlite3.connect("bot.db") as conn:
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM users WHERE user_id = ?", (user_id,))
+        cursor.execute("DELETE FROM sleep_history WHERE user_id = ?", (user_id,))
+        cursor.execute("DELETE FROM reviews WHERE user_id = ?", (user_id,))
+        conn.commit()
+        logger.info(f"Deleted user and related data for user_id {user_id}.")
 
 async def main():
     loop = asyncio.get_event_loop()
@@ -47,6 +64,18 @@ async def main():
 
     init_db()
     clean_old_sleep_data()
+
+    action = input("🔧 Would you like to delete user data or reviews? (users/reviews/skip): ").strip().lower()
+    if action in {"users", "reviews"}:
+        user_id = input("🆔 Enter user_id to delete: ").strip()
+        if user_id.isdigit():
+            user_id = int(user_id)
+            if action == "users":
+                delete_user_by_id(user_id)
+            elif action == "reviews":
+                delete_reviews_by_user_id(user_id)
+        else:
+            logger.warning("Invalid user_id entered. Skipping deletion.")
 
     notify_users = input("🔔 Notify users about bot startup? (yes/no): ").strip().lower()
     if notify_users in {"yes", "y"}:
