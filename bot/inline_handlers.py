@@ -52,7 +52,7 @@ async def option_2_handler(callback: CallbackQuery):
 @router.callback_query(F.data == "start_chat")
 async def start_chat_handler(callback: CallbackQuery):
     user_id = callback.from_user.id
-    await callback.message.answer("💀💤 Hello! I am SleepySkel. We can talk about your dreams or smth. Type 'stop' to end the conversation.")
+    await callback.message.answer("💀💤: Hello! I am SleepySkel. We can talk about anything (dreams and sleeping too). Type 'stop' to end the conversation.")
     await callback.answer()
     user_chat_state[user_id] = True
 
