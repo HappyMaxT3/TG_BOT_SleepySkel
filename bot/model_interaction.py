@@ -55,7 +55,7 @@ def get_model_response(model, tokenizer, user_input: str, user_id) -> str:
         prompt = f"{name}: {user_input}\n\n💀💤: {advice_response}\nAnswer: "
 
         inputs = tokenizer.encode(prompt, return_tensors="pt")
-        outputs = model.generate(inputs, max_new_tokens=220)
+        outputs = model.generate(inputs, max_new_tokens=250)
 
         final_response = tokenizer.decode(outputs[0], skip_special_tokens=True)
         return f"{name}: {user_input}\n\n💀💤: " + final_response.split("Answer:")[-1].strip()
@@ -64,7 +64,7 @@ def get_model_response(model, tokenizer, user_input: str, user_id) -> str:
         prompt = f"{name}: {user_input}\n\n💀💤: "
 
         inputs = tokenizer.encode(prompt, return_tensors="pt")
-        outputs = model.generate(inputs, max_new_tokens=150)
+        outputs = model.generate(inputs, max_new_tokens=160)
 
         final_response = tokenizer.decode(outputs[0], skip_special_tokens=True)
         return final_response.split("Answer:")[-1].strip()
