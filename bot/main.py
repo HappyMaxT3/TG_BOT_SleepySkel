@@ -65,20 +65,20 @@ async def main():
     init_db()
     clean_old_sleep_data()
 
-    action = input("🔧 Would you like to delete user data or reviews? (users/reviews/skip): ").strip().lower()
-    if action in {"users", "reviews"}:
+    action = input("🔧 Would you like to delete user data or reviews? (u - users/r - reviews/`other_key` - skip): ").strip().lower()
+    if action in {"u", "r"}:
         user_ids_input = input("🆔 Enter user_ids to delete (comma or space separated): ").strip()
         user_ids = [int(uid) for uid in user_ids_input.replace(",", " ").split() if uid.isdigit()]
         if user_ids:
-            if action == "users":
+            if action == "u":
                 delete_users_by_ids(user_ids)
-            elif action == "reviews":
+            elif action == "r":
                 delete_reviews_by_user_ids(user_ids)
         else:
             logger.warning("No valid user_ids entered. Skipping deletion.")
 
-    notify_users = input("🔔 Notify users about bot startup? (yes/no): ").strip().lower()
-    if notify_users in {"yes", "y"}:
+    notify_users = input("🔔 Notify users about bot startup? (y - yes/n - no): ").strip().lower()
+    if notify_users in {"yes", "y", "Y"}:
         logger.info("Notifying users about startup...")
         await notify_startup(bot)
     else:
@@ -88,7 +88,7 @@ async def main():
         await bot.delete_webhook(drop_pending_updates=True)
         await dp.start_polling(bot, allowed_updates=dp.resolve_used_update_types())
     finally:
-        if notify_users in {"yes", "y"}:
+        if notify_users in {"yes", "y", "Y"}:
             logger.info("Notifying users about shutdown...")
             await notify_shutdown(bot)
         await bot.session.close()
