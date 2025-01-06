@@ -140,16 +140,10 @@ TG_BOT_SleepySkel/
 │   ├── config.py
 │   ├── states.py
 │   ├── storage.py
+│   ├── sleep_advice.txt
 │   ├── inline_handlers.py
 │   └── model_interaction.py
 ├── requirements.txt
 ├── bot.db
 └── README.md
 ```
-
----
-
-## 🧩 Tips and Notes
-
-- If OpenAI API is blocked in your country, use a VPN.
-- Make sure the virtual environment is activated before running the bot.
