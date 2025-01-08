@@ -42,13 +42,13 @@ def get_model_response(model, tokenizer, user_input: str, user_id) -> str:
     sleep_advice = load_sleep_advice()
 
     if any(word in user_input.lower() for word in [
-    "dream", "nightmare", "sleep", "tired", "insomnia", "fatigue", "rest", "wake", "energy", 
-    "relax", "caffeine", "melatonin", "circadian", "drowsy", "fatigued", "recharge", "sleepy", 
-    "snooze", "nap", "restful", "deep sleep", "sleep cycle", "sleep deprivation", "bedtime", 
-    "sleeping", "brain waves", "overstimulated", "overwork", "sleep hygiene", "REM sleep", 
-    "sleeping patterns", "chronic fatigue", "good sleep", "quality sleep", "relaxation", 
-    "dreams", "restorative sleep", "sleep disorders", "body clock", "sleep environment", 
-    "unwinding", "sleep therapy"
+        "dream", "nightmare", "sleep", "tired", "insomnia", "fatigue", "rest", "wake", "energy", 
+        "relax", "caffeine", "melatonin", "circadian", "drowsy", "fatigued", "recharge", "sleepy", 
+        "snooze", "nap", "restful", "deep sleep", "sleep cycle", "sleep deprivation", "bedtime", 
+        "sleeping", "brain waves", "overstimulated", "overwork", "sleep hygiene", "REM sleep", 
+        "sleeping patterns", "chronic fatigue", "good sleep", "quality sleep", "relaxation", 
+        "dreams", "restorative sleep", "sleep disorders", "body clock", "sleep environment", 
+        "unwinding", "sleep therapy"
     ]):
 
         advice_response = generate_sleep_response(user_input, sleep_advice)
@@ -58,7 +58,7 @@ def get_model_response(model, tokenizer, user_input: str, user_id) -> str:
         outputs = model.generate(inputs, max_new_tokens=250)
 
         final_response = tokenizer.decode(outputs[0], skip_special_tokens=True)
-        return f"{name}: {user_input}\n\n💀💤: " + final_response.split("Answer:")[-1].strip()
+        return f"💀💤: " + final_response.split("Answer:")[-1].strip()
     
     else:
         prompt = f"{name}: {user_input}\n\n💀💤: "
@@ -67,4 +67,5 @@ def get_model_response(model, tokenizer, user_input: str, user_id) -> str:
         outputs = model.generate(inputs, max_new_tokens=160)
 
         final_response = tokenizer.decode(outputs[0], skip_special_tokens=True)
-        return final_response.split("Answer:")[-1].strip()
+        return f"💀💤: " + final_response.split("💀💤:")[-1].strip()
+

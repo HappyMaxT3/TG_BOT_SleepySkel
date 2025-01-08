@@ -1,4 +1,5 @@
 from aiogram import Router, F
+from aiogram import types
 from aiogram.types import CallbackQuery, Message
 from bot.storage import (
     get_average_sleep_duration_last_7_days,
@@ -66,7 +67,7 @@ async def stop_chat_handler(message: Message):
         await message.answer("💀❌ You are not in a chat.")
 
 @router.message()
-async def chat_with_model_handler(message: Message):
+async def chat_with_model_handler(message: types.Message):
     user_id = message.from_user.id
     text = message.text.strip().lower()
 
@@ -81,6 +82,6 @@ async def chat_with_model_handler(message: Message):
             await stop_chat_handler(message)
         else:
             model_response = get_model_response(model, tokenizer, text, user_id)
-            await message.answer(model_response)
+            await message.answer(model_response, reply_to_message_id=message.message_id)
     else:
         await message.answer("💀🔒 You are not in a chat with SleepySkel. Choose an option to begin!")

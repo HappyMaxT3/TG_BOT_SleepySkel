@@ -93,6 +93,7 @@ async def sleep_start_handler(message: Message, state: FSMContext):
     user_id = message.from_user.id
     name = get_user_name(user_id)
     sleep_start = get_sleep_start(user_id)
+    
     if sleep_start:
         await message.answer("‼️ You already recorded a sleep start time. Finish the current sleep first.", reply_markup=create_dynamic_menu(user_id))
         return
@@ -103,8 +104,7 @@ async def sleep_start_handler(message: Message, state: FSMContext):
     save_sleep_start(user_id, sleep_start_str)
 
     await message.answer(f"💀🛌 Sleep start recorded: {current_time} {current_date}.", reply_markup=create_dynamic_menu(user_id))
-    await state.update_data(button_text="Mark the end of sleep")
-    await message.answer(f"💀💤 Sweet dreams, {name}! Don't forget to mark the end when you wake up!\n (Remember that the min sleep duration is 20 minutes)", reply_markup=create_dynamic_menu(user_id))
+    await message.answer(f"💀💤 Sweet dreams, {name}! Don't forget to mark the end when you wake up!\n(Remember that the minimum sleep duration is 20 minutes)", reply_markup=create_dynamic_menu(user_id))
 
     asyncio.create_task(notify_after_10_hours(user_id, sleep_start_str, message.bot))
 
@@ -113,6 +113,7 @@ async def sleep_end_handler(message: Message, state: FSMContext):
     user_id = message.from_user.id
     name = get_user_name(user_id)
     sleep_start = get_sleep_start(user_id)
+    
     if not sleep_start:
         await message.answer("‼️ Mark the sleep start before marking the end.", reply_markup=create_dynamic_menu(user_id))
         return
@@ -125,10 +126,10 @@ async def sleep_end_handler(message: Message, state: FSMContext):
     sleep_duration = end_datetime - start_datetime
 
     total_minutes = sleep_duration.total_seconds() / 60
+
     if total_minutes < 20:
-        save_sleep_start(user_id, None)
         await message.answer(
-            f"❌ Sleep duration is too short ({int(total_minutes)} min). Sleep record discarded.",
+            f"❌ Sleep duration is too short ({int(total_minutes)} min < 20 min). Please try again after a longer rest.",
             reply_markup=create_dynamic_menu(user_id)
         )
         return

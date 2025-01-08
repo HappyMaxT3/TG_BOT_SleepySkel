@@ -29,6 +29,21 @@ async def notify_shutdown(bot: Bot):
         except Exception as e:
             logger.warning(f"Failed to notify user {user_id}: {e}")
 
+async def notify_updates(bot: Bot):
+    user_ids = get_all_user_ids()
+    update_message = "💀🚀 New update available!\n\n1. The logic of marking the beginning and end has been changed, the database with the sleep history has been cleared.\n2. SleepySkel chat was improved!"
+    for user_id in user_ids:
+        try:
+            await bot.send_message(user_id, update_message, reply_markup={"keyboard": [["Skip", "More Info"]], "resize_keyboard": True})
+        except Exception as e:
+            logger.warning(f"Failed to notify user {user_id} about updates: {e}")
+
+def clear_sleep_history():
+    with sqlite3.connect("bot.db") as conn:
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM sleep_history")
+        conn.commit()
+
 def delete_reviews_by_user_ids(user_ids):
     with sqlite3.connect("bot.db") as conn:
         cursor = conn.cursor()
@@ -65,6 +80,12 @@ async def main():
     init_db()
     clean_old_sleep_data()
 
+    clear_history = input("❓ Clear sleep_history.db? (y - yes / n - no): ").strip().lower()
+    if clear_history in {"yes", "y", "Yes"}:
+        clear_sleep_history()
+    else:
+        logger.info("⏩ Clearing sleep_history skipped.")
+
     action = input("🔧 Would you like to delete user data or reviews? (u - users/r - reviews/`other_key` - skip): ").strip().lower()
     if action in {"u", "r"}:
         user_ids_input = input("🆔 Enter user_ids to delete (comma or space separated): ").strip()
@@ -76,13 +97,22 @@ async def main():
                 delete_reviews_by_user_ids(user_ids)
         else:
             logger.warning("No valid user_ids entered. Skipping deletion.")
+    else:
+        logger.info("⏩ Deleting user data skipped.")
 
     notify_users = input("🔔 Notify users about bot startup? (y - yes/n - no): ").strip().lower()
     if notify_users in {"yes", "y", "Y"}:
         logger.info("Notifying users about startup...")
         await notify_startup(bot)
     else:
-        logger.info("Startup notification skipped.")
+        logger.info("⏩ Startup notification skipped.")
+
+    notify_update = input("🔔 Notify users about updates? (y - yes/n - no): ").strip().lower()
+    if notify_update in {"yes", "y", "Y"}:
+        logger.info("Notifying users about updates...")
+        await notify_updates(bot)
+    else:
+        logger.info("⏩ Update notification skipped.")
 
     try:
         await bot.delete_webhook(drop_pending_updates=True)
