@@ -129,7 +129,7 @@ async def sleep_end_handler(message: Message, state: FSMContext):
 
     if total_minutes < 20:
         await message.answer(
-            f"❌ Sleep duration is too short ({int(total_minutes)} min < 20 min). Please try again after a longer rest.",
+            f"❌ Sleep duration is too short ({int(total_minutes)} min less than 20 min). Please try again after a longer rest.",
             reply_markup=create_dynamic_menu(user_id)
         )
         return

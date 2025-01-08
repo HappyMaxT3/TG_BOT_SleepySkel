@@ -31,10 +31,10 @@ async def notify_shutdown(bot: Bot):
 
 async def notify_updates(bot: Bot):
     user_ids = get_all_user_ids()
-    update_message = "💀🚀 New update available!\n\n1. The logic of marking the beginning and end has been changed, the database with the sleep history has been cleared.\n2. SleepySkel chat was improved!"
+    update_message = "💀🚀 SORRY😭😭😭\n\n it was a cringe trouble... Now SleepySkel works correctly!"
     for user_id in user_ids:
         try:
-            await bot.send_message(user_id, update_message, reply_markup={"keyboard": [["Skip", "More Info"]], "resize_keyboard": True})
+            await bot.send_message(user_id, update_message)
         except Exception as e:
             logger.warning(f"Failed to notify user {user_id} about updates: {e}")
 
@@ -80,7 +80,7 @@ async def main():
     init_db()
     clean_old_sleep_data()
 
-    clear_history = input("❓ Clear sleep_history.db? (y - yes / n - no): ").strip().lower()
+    clear_history = input("❓ Clear sleep_history.db? (y - yes / `other_key` - skip): ").strip().lower()
     if clear_history in {"yes", "y", "Yes"}:
         clear_sleep_history()
     else:
@@ -100,14 +100,14 @@ async def main():
     else:
         logger.info("⏩ Deleting user data skipped.")
 
-    notify_users = input("🔔 Notify users about bot startup? (y - yes/n - no): ").strip().lower()
+    notify_users = input("🔔 Notify users about bot startup? (y - yes/`other_key` - skip): ").strip().lower()
     if notify_users in {"yes", "y", "Y"}:
         logger.info("Notifying users about startup...")
         await notify_startup(bot)
     else:
         logger.info("⏩ Startup notification skipped.")
 
-    notify_update = input("🔔 Notify users about updates? (y - yes/n - no): ").strip().lower()
+    notify_update = input("🚀 Notify users about updates? (y - yes/`other_key` - skip): ").strip().lower()
     if notify_update in {"yes", "y", "Y"}:
         logger.info("Notifying users about updates...")
         await notify_updates(bot)
