@@ -91,7 +91,7 @@ You should see a success message confirming your login.
    python -m venv venv
 
    # MacOS / Linux
-   python3 -m venv venv
+   python3.9 -m venv venv
    ```
 
 2. Activate the virtual environment:
