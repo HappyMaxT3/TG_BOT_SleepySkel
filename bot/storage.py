@@ -56,7 +56,6 @@ def add_feedback(user_id, review_text):
         """, (user_id, review_text))
         conn.commit()
 
-
 def clean_old_sleep_data():
     with sqlite3.connect("bot.db") as conn:
         cursor = conn.cursor()
