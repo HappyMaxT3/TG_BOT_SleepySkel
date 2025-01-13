@@ -1,71 +1,93 @@
-from transformers import AutoModelForCausalLM, AutoTokenizer
+from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline
 from tqdm import tqdm
 from bot.storage import get_user_name
+from langchain.prompts import PromptTemplate
+from langchain.memory import ConversationBufferMemory
+from langchain.chains import SequentialChain, TransformChain
 import torch
 import random
 
 def load_model_with_progress(model_name="bigscience/bloomz-1b7"):
-    progress_bar = tqdm(total=2, desc="loading")
+    try:
+        with tqdm(total=2, desc="Loading Model") as progress_bar:
+            tokenizer = AutoTokenizer.from_pretrained(model_name)
+            progress_bar.update(1)
 
-    tokenizer = AutoTokenizer.from_pretrained(model_name)
-    progress_bar.update(1)
+            model = AutoModelForCausalLM.from_pretrained(model_name).to("mps")
+            progress_bar.update(1)
 
-    model = AutoModelForCausalLM.from_pretrained(
-        model_name,
-        torch_dtype=torch.float16 if torch.cuda.is_available() else torch.float32
-    )
-    progress_bar.update(1)
+        print("💀 Model loaded successfully!")
+        return model, tokenizer
+    except Exception as e:
+        print(f"Error loading model: {e}")
+        return None, None
 
-    progress_bar.close()
-    print("💀 model was loaded!")
-
-    return model, tokenizer
+def create_huggingface_pipeline(model, tokenizer):
+    return pipeline("text-generation", model=model, tokenizer=tokenizer)
 
 def load_sleep_advice(file_path="bot/sleep_advice.txt") -> list:
     try:
         with open(file_path, "r", encoding="utf-8") as file:
-            advice_list = file.readlines()
-        return [advice.strip() for advice in advice_list if advice.strip()]
+            return [advice.strip() for advice in file if advice.strip()]
     except FileNotFoundError:
         return ["I'm sorry, but I don't have sleep advice at the moment."]
+    except Exception as e:
+        print(f"Error loading sleep advice: {e}")
+        return []
 
 def generate_sleep_response(user_input: str, advice_list: list) -> str:
-    relevant_advice = random.choice(advice_list)
-    response = (
-        f"Dreams and nightmares can be influenced by your daily life. Here's something to consider: {relevant_advice}. "
-        f"Try to relax before bedtime to improve your sleep."
+    return (
+        f"Dreams and nightmares can be influenced by your daily life. Here's something to consider: "
+        f"{random.choice(advice_list)}. Try to relax before bedtime to improve your sleep."
     )
-    return response
 
 def get_model_response(model, tokenizer, user_input: str, user_id) -> str:
     name = get_user_name(user_id)
     sleep_advice = load_sleep_advice()
 
-    if any(word in user_input.lower() for word in [
-        "dream", "nightmare", "sleep", "tired", "insomnia", "fatigue", "rest", "wake", "energy", 
-        "relax", "caffeine", "melatonin", "circadian", "drowsy", "fatigued", "recharge", "sleepy", 
-        "snooze", "nap", "restful", "deep sleep", "sleep cycle", "sleep deprivation", "bedtime", 
-        "sleeping", "brain waves", "overstimulated", "overwork", "sleep hygiene", "REM sleep", 
-        "sleeping patterns", "chronic fatigue", "good sleep", "quality sleep", "relaxation", 
-        "dreams", "restorative sleep", "sleep disorders", "body clock", "sleep environment", 
+    pipeline = create_huggingface_pipeline(model, tokenizer)
+
+    memory = ConversationBufferMemory(return_messages=True, memory_key="chat_history")
+
+    prompt_template = PromptTemplate(
+        input_variables=["name", "user_input", "advice_response"],
+        template="{name}: {user_input}\n\n💀💤: {advice_response}\nAnswer: "
+    )
+
+    transform_chain = TransformChain(
+        input_variables=["name", "user_input", "advice_response"],
+        output_variables=["final_response"],
+        transform=lambda inputs: pipeline(f"{inputs['name']}: {inputs['user_input']} {inputs['advice_response']}")[0]["generated_text"]
+    )
+
+    chain = SequentialChain(
+        chains=[transform_chain],
+        input_variables=["name", "user_input", "advice_response"],
+        output_variables=["final_response"]
+    )
+
+    sleep_keywords = {
+        "dream", "nightmare", "sleep", "tired", "insomnia", "fatigue", "rest", "wake", "energy",
+        "relax", "caffeine", "melatonin", "circadian", "drowsy", "fatigued", "recharge", "sleepy",
+        "snooze", "nap", "restful", "deep sleep", "sleep cycle", "sleep deprivation", "bedtime",
+        "sleeping", "brain waves", "overstimulated", "overwork", "sleep hygiene", "REM sleep",
+        "sleeping patterns", "chronic fatigue", "good sleep", "quality sleep", "relaxation",
+        "dreams", "restorative sleep", "sleep disorders", "body clock", "sleep environment",
         "unwinding", "sleep therapy"
-    ]):
+    }
 
+    if any(keyword in user_input.lower() for keyword in sleep_keywords):
         advice_response = generate_sleep_response(user_input, sleep_advice)
-        prompt = f"{name}: {user_input}\n\n💀💤: {advice_response}\nAnswer: "
-
-        inputs = tokenizer.encode(prompt, return_tensors="pt")
-        outputs = model.generate(inputs, max_new_tokens=250)
-
-        final_response = tokenizer.decode(outputs[0], skip_special_tokens=True)
-        return f"💀💤: " + final_response.split("Answer:")[-1].strip()
-    
+        chain_response = chain.invoke({
+            "name": name,
+            "user_input": user_input,
+            "advice_response": advice_response
+        })
+        return f"💀💤: {chain_response['final_response'].strip()}"
     else:
         prompt = f"{name}: {user_input}\n\n💀💤: "
-
-        inputs = tokenizer.encode(prompt, return_tensors="pt")
-        outputs = model.generate(inputs, max_new_tokens=160)
-
+        inputs = tokenizer.encode(prompt, return_tensors="pt").to("mps")
+        outputs = model.generate(inputs, max_new_tokens=250)
         final_response = tokenizer.decode(outputs[0], skip_special_tokens=True)
-        return f"💀💤: " + final_response.split("💀💤:")[-1].strip()
+        return f"💀💤: {final_response.split('💀💤:')[-1].strip()}"
 
