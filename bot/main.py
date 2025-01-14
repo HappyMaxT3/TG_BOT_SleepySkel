@@ -9,6 +9,7 @@ from bot.handlers import router
 from bot.storage import init_db, clean_old_sleep_data, get_all_user_ids
 from bot.config import BOT_TOKEN
 from bot.model_interaction import load_model_with_progress
+from bot.commands import set_bot_commands
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -31,7 +32,7 @@ async def notify_shutdown(bot: Bot):
 
 async def notify_updates(bot: Bot):
     user_ids = get_all_user_ids()
-    update_message = "💀🚀 SORRY😭😭😭\n\n it was a cringe trouble... Now SleepySkel works correctly!"
+    update_message = "💀🚀 BIG UPDATE\n\nAdded Command Menu!"
     for user_id in user_ids:
         try:
             await bot.send_message(user_id, update_message)
@@ -76,6 +77,8 @@ async def main():
     dp["tokenizer"] = tokenizer
 
     dp.include_router(router)
+
+    await set_bot_commands(bot)
 
     init_db()
     clean_old_sleep_data()
