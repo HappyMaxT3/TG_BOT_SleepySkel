@@ -59,7 +59,7 @@ async def info_handler(message: Message):
         "💡 *Tip:* Don’t forget to mark the end of sleep to get accurate statistics! 💤\n"
         "If you sleep for more than 10 hours, SleepySkel will remind you to finish recording your sleep. 🛏️\n\n"
         "📝 You can leave a feedback! Just send a message with `feedback` and it will recordered.\n"
-        "(Feedback It is so cool bot! Waiting 100$ on ma paypal.)"
+        "(`Feedback It is so cool bot! I really enjoy it! (Waiting 100$ on my paypal for good reference)`)"
     )
     await message.answer(instruction_text, parse_mode="Markdown")
 
