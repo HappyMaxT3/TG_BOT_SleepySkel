@@ -3,9 +3,11 @@ from tqdm import tqdm
 from bot.storage import get_user_name
 from langchain.prompts import PromptTemplate
 from langchain.memory import ConversationBufferMemory
-from langchain.chains import SequentialChain, TransformChain
 import torch
 import random
+
+def format_response(response: str) -> str:
+    return f"💀💤: {response.strip()}"
 
 def load_model_with_progress(model_name="bigscience/bloomz-1b1"):
     try:
@@ -13,7 +15,7 @@ def load_model_with_progress(model_name="bigscience/bloomz-1b1"):
             tokenizer = AutoTokenizer.from_pretrained(model_name)
             progress_bar.update(1)
 
-            model = AutoModelForCausalLM.from_pretrained(model_name).to("mps")
+            model = AutoModelForCausalLM.from_pretrained(model_name).to("cuda" if torch.cuda.is_available() else "cpu")
             progress_bar.update(1)
 
         print("💀 Model loaded successfully!")
@@ -39,8 +41,11 @@ def rephrase_advice(pipeline, advice: str, variations=3) -> list:
     responses = pipeline(
         f"Generate {variations} different ways to rephrase the following sleep advice: {advice}",
         max_length=150,
+        do_sample=True,
         num_return_sequences=variations,
-        num_beams=variations 
+        num_beams=variations,
+        temperature=0.7,
+        top_p=0.9
     )
     return [response["generated_text"].split(": ")[-1].strip() for response in responses]
 
@@ -50,32 +55,14 @@ def generate_unique_response(user_input: str, advice_list: list, pipeline) -> st
     return random.choice(rephrased_variations)
 
 def generate_sleep_response(user_input: str, advice_list: list, pipeline) -> str:
-    return generate_unique_response(user_input, advice_list, pipeline)
+    advice_response = generate_unique_response(user_input, advice_list, pipeline)
+    return format_response(advice_response)
 
 def get_model_response(model, tokenizer, user_input: str, user_id) -> str:
     name = get_user_name(user_id)
     sleep_advice = load_sleep_advice()
     pipeline = create_huggingface_pipeline(model, tokenizer)
     memory = ConversationBufferMemory(return_messages=True, memory_key="chat_history")
-
-    prompt_template = PromptTemplate(
-        input_variables=["name", "user_input", "advice_response"],
-        template="{name}: {user_input}\n\n💀💤: {advice_response}\nAnswer: "
-    )
-
-    transform_chain = TransformChain(
-        input_variables=["name", "user_input", "advice_response"],
-        output_variables=["final_response"],
-        transform=lambda inputs: {"final_response": pipeline(
-            f"{inputs['name']}: {inputs['user_input']} {inputs['advice_response']}"
-        )[0]["generated_text"]}
-    )
-
-    chain = SequentialChain(
-        chains=[transform_chain],
-        input_variables=["name", "user_input", "advice_response"],
-        output_variables=["final_response"]
-    )
 
     sleep_keywords = {
         "dream", "nightmare", "sleep", "tired", "insomnia", "fatigue", "rest", "wake", "energy",
@@ -89,18 +76,13 @@ def get_model_response(model, tokenizer, user_input: str, user_id) -> str:
 
     if any(keyword in user_input.lower() for keyword in sleep_keywords):
         advice_response = generate_sleep_response(user_input, sleep_advice, pipeline)
-        chain_response = chain.invoke({
-            "name": name,
-            "user_input": user_input,
-            "advice_response": advice_response
-        })
-        if "final_response" in chain_response:
-            return chain_response['final_response'].strip()
-        else:
-            return "Something went wrong with the response generation."
-    else:
-        prompt = f"{name}: {user_input}\n\n💀💤: "
-        inputs = tokenizer.encode(prompt, return_tensors="pt").to("cuda" if torch.cuda.is_available() else "cpu")
-        outputs = model.generate(inputs, max_new_tokens=300)
-        final_response = tokenizer.decode(outputs[0], skip_special_tokens=True)
-        return final_response.split('💀💤:')[-1].strip()
+        return advice_response
+
+    prompt = f"{name}: {user_input}\n\n 💀💤: "
+    inputs = tokenizer.encode(prompt, return_tensors="pt").to("cuda" if torch.cuda.is_available() else "cpu")
+    outputs = model.generate(inputs, max_new_tokens=300, do_sample=True, temperature=0.7, top_p=0.9)
+    final_response = tokenizer.decode(outputs[0], skip_special_tokens=True)
+
+    response = final_response.split(prompt)[-1].strip()
+
+    return format_response(response)
