@@ -50,11 +50,7 @@ def generate_unique_response(user_input: str, advice_list: list, pipeline) -> st
     return random.choice(rephrased_variations)
 
 def generate_sleep_response(user_input: str, advice_list: list, pipeline) -> str:
-    rephrased_advice = generate_unique_response(user_input, advice_list, pipeline)
-    return (
-        f"Dreams and nightmares can be influenced by your daily life. Here's something to consider: "
-        f"{rephrased_advice}. Try to relax before bedtime to improve your sleep."
-    )
+    return generate_unique_response(user_input, advice_list, pipeline)
 
 def get_model_response(model, tokenizer, user_input: str, user_id) -> str:
     name = get_user_name(user_id)
@@ -99,12 +95,12 @@ def get_model_response(model, tokenizer, user_input: str, user_id) -> str:
             "advice_response": advice_response
         })
         if "final_response" in chain_response:
-            return f"💀💤: {chain_response['final_response'].strip()}"
+            return chain_response['final_response'].strip()
         else:
-            return "💀💤: Something went wrong with the response generation."
+            return "Something went wrong with the response generation."
     else:
         prompt = f"{name}: {user_input}\n\n💀💤: "
         inputs = tokenizer.encode(prompt, return_tensors="pt").to("cuda" if torch.cuda.is_available() else "cpu")
         outputs = model.generate(inputs, max_new_tokens=300)
         final_response = tokenizer.decode(outputs[0], skip_special_tokens=True)
-        return f"💀💤: {final_response.split('💀💤:')[-1].strip()}"
+        return final_response.split('💀💤:')[-1].strip()
