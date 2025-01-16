@@ -1,4 +1,5 @@
 from translate import Translator
+from langdetect import detect
 
 user_languages = {}
 
@@ -15,3 +16,11 @@ def translate_message(message: str, user_id: int) -> str:
     elif language == "ru":
         translator = Translator(to_lang="ru")
         return translator.translate(message)
+
+def translate_to_english(text: str) -> str:
+
+    if detect(text) == "ru": 
+        translator = Translator(from_lang="ru", to_lang="en")
+        return translator.translate(text)
+    else:
+        return text  

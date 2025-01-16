@@ -8,6 +8,7 @@
 - Track your sleep and wake-up times.
 - Get tips to improve your sleep quality from SleepySkel (AI).
 - Get some statistics.
+- Russian and English!
 
 ---
 
