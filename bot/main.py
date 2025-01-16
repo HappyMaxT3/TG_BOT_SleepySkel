@@ -33,7 +33,7 @@ async def notify_shutdown(bot: Bot):
 
 async def notify_updates(bot: Bot):
     user_ids = get_all_user_ids()
-    update_message = "💀🚀 BIG UPDATE\n\nAdded Command Menu!\n\nIf you have a problem with displaying buttons (mysterious 'Skip' and 'More Info') just clear the bot history and restart."
+    update_message = "💀🚀 BIG UPDATE\n\nAdded Languages!\n\nChoose /set_language to begin."
     for user_id in user_ids:
         try:
             await bot.send_message(user_id, update_message)
