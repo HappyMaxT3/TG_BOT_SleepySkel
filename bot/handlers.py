@@ -3,7 +3,6 @@ from aiogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.filters import CommandStart, Command
 from aiogram.fsm.context import FSMContext
 from aiogram.types import ReplyKeyboardRemove
-from aiogram.types import CallbackQuery
 from datetime import datetime
 from bot.keyboards import create_dynamic_menu
 from bot.states import Form
@@ -17,7 +16,9 @@ import asyncio
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.interval import IntervalTrigger
 from aiogram import Bot
-from translate import Translator
+from bot.translator import translate_message
+from bot.translator import set_user_language
+from aiogram.types import CallbackQuery
 
 class SleepCorrection(StatesGroup):
     waiting_for_correct_time = State()
@@ -25,8 +26,6 @@ class SleepCorrection(StatesGroup):
 scheduler = AsyncIOScheduler()
 
 router = Router()
-
-user_languages = {}
 
 @router.message(Command("set_language"))
 async def set_language_handler(message: Message):
@@ -41,18 +40,11 @@ async def language_selected(callback: CallbackQuery):
     user_id = callback.from_user.id
     selected_language = callback.data.split("_")[1]
 
-    user_languages[user_id] = selected_language
+    set_user_language(user_id, selected_language)
+
     language_name = "English" if selected_language == "en" else "Русский"
     await callback.message.answer(f"💀 Language set to {language_name}!", reply_markup=create_dynamic_menu(user_id))
     await callback.answer()
-
-def translate_message(message: str, user_id: int) -> str:
-    language = user_languages.get(user_id, "en")
-    if language == "en":
-        return message
-    elif language == "ru":
-        translator = Translator(to_lang="ru")
-        return translator.translate(message)
 
 async def send_feedback_prompt(user_id: int, bot: Bot):
     await bot.send_message(user_id, "💀 I remind that you can leave a feedback!\n📝 Just write a message with `feedback` and it will be recordered.")

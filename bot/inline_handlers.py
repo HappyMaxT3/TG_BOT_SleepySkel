@@ -10,6 +10,7 @@ from bot.storage import (
 )
 from bot.model_interaction import get_model_response
 from transformers import AutoModelForCausalLM, AutoTokenizer
+from bot.translator import translate_message
 
 model_name = "bigscience/bloomz-1b1"
 tokenizer = AutoTokenizer.from_pretrained(model_name)
@@ -25,13 +26,13 @@ async def sleep_stats_handler(callback: CallbackQuery):
     total_sleep = get_total_sleep_duration_last_7_days(user_id)
     anon_avg_sleep = get_anonymous_average_sleep()
 
-    response = (
-        f"📊 Your sleep statistics for the last 7 days:\n"
-        f"• Average sleep duration: {avg_sleep} min\n"
-        f"• Total sleep duration: {total_sleep} min\n\n"
-        f"📈 Statistics of all users:\n"
-        f"• Average sleep duration: {anon_avg_sleep} min"
-    )
+    text = f"📊 Your sleep statistics for the last 7 days:\n" \
+           f"• Average sleep duration: {avg_sleep} min\n" \
+           f"• Total sleep duration: {total_sleep} min\n\n" \
+           f"📈 Statistics of all users:\n" \
+           f"• Average sleep duration: {anon_avg_sleep} min"
+
+    response = translate_message(text, user_id)
     await callback.message.edit_text(response)
     await callback.answer()
 
