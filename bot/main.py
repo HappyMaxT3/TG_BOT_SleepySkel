@@ -10,6 +10,7 @@ from bot.storage import init_db, clean_old_sleep_data, get_all_user_ids
 from bot.config import BOT_TOKEN
 from bot.model_interaction import load_model_with_progress
 from bot.commands import set_bot_commands
+from bot.translator import translate_message
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -18,7 +19,7 @@ async def notify_startup(bot: Bot):
     user_ids = get_all_user_ids()
     for user_id in user_ids:
         try:
-            await bot.send_message(user_id, "💀🦾 Wake the f*** up, samurai... We have the sleep to track!\nLet's go, darling! I'm working again.")
+            await bot.send_message(user_id, translate_message("💀🦾 Wake the f*** up, samurai... We have the sleep to track!\nLet's go, darling! I'm working again.", user_id))
         except Exception as e:
             logger.warning(f"Failed to notify user {user_id}: {e}")
 
@@ -26,7 +27,7 @@ async def notify_shutdown(bot: Bot):
     user_ids = get_all_user_ids()
     for user_id in user_ids:
         try:
-            await bot.send_message(user_id, "💀💤 See you soon, darling!\nI'm falling asleep too... It's time to rest...")
+            await bot.send_message(user_id, translate_message("💀💤 See you soon, darling!\nI'm falling asleep too... It's time to rest...", user_id))
         except Exception as e:
             logger.warning(f"Failed to notify user {user_id}: {e}")
 

@@ -74,13 +74,13 @@ async def info_handler(message: Message):
         "💀 <b>Sleepy Skel Bot User Guide:</b>\n\n"
         "1️⃣ /start — Start the bot and set up your username.\n"
         "2️⃣ /info — Info and instruction.\n"
-        "2️⃣ /set_language — Choose the bot language.\n"
-        "3️⃣ 'Mark the beginning of sleep' — Mark the start of sleep.\n"
-        "4️⃣ 'Mark the end of sleep' — Mark the end of sleep (sleep duration must be >20 min).\n5️⃣ "
+        "3️⃣ /set_language — Choose the bot language.\n"
+        "4️⃣ 'Mark the beginning of sleep' — Mark the start of sleep.\n"
+        "5️⃣ 'Mark the end of sleep' — Mark the end of sleep (sleep duration must be >20 min).\n6️⃣ "
     )
     part2 = (
         " 'Show options' — Show additional settings: statistics, sleep history, chat with SleepySkel.\n"
-        "6️⃣ 'Change the name' — Change your name in the bot.\n\n"
+        "7️⃣ 'Change the name' — Change your name in the bot.\n\n"
         "💡 <b>Tip:</b> Don’t forget to mark the end of sleep to get accurate statistics! 💤\n"
         "If you sleep for more than 10 hours, SleepySkel will remind you to finish recording your sleep. 🛏️\n\n"
         "📝 You can leave feedback! Just send a message with <code>feedback</code> and it will be recorded.\n"
@@ -88,8 +88,6 @@ async def info_handler(message: Message):
     part3 = (
         "<code>(Feedback It is so cool bot! I really enjoy it! (Waiting 100$ on my PayPal for good reference))</code>"
     )
-
-    instruction_text = part1 + part2 + part3
 
     translated_text1 = translate_message(part1, message.from_user.id)
     translated_text2 = translate_message(part2, message.from_user.id)
