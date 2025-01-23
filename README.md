@@ -20,7 +20,7 @@ Follow the steps below to set up and run the **SleepySkel** bot on your device.
 
 ### ⚙️ 1. Clone the Project
 
-First, download the bot to your device.
+First, download the bot to your device (It must support Metal Performance Shaders (MPS)).
 
 Run this command in your terminal:
 
